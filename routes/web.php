@@ -90,3 +90,11 @@ Route::post('/admin/attendance/byMonth','AttendanceController@searchByMonth');
 Route::post('/admin/attendance/byYear','AttendanceController@searchByYear');
 Route::post('/admin/attendance/byUsername','AttendanceController@searchByUsername');
 //************************ Attendance Route End *****************************
+
+
+
+//************************Expense_categories Route Start********************
+Route::get('/admin/expense_categories','ExpensesCategoriesController@index');
+// Route::get('/admin/expense_categories','ExpensesCategoriesController@create');
+// Route::post('/admin/expense_categories','ExpensesCategoriesController@store');
+// Route::resource('/admin/expense_categories', 'ExpensesCategoriesController');
