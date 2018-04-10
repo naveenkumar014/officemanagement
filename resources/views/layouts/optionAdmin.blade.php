@@ -1,4 +1,16 @@
 <li class="active">
+	<a href="#"><i class="fa fa-th-large"></i> <span class="nav-label" data-i18n="nav.dashboard">Expense Management</span> <span class="fa arrow"></span></a>
+
+	<ul class="nav nav-second-level collapse in">
+	    <li class=""><a href="/admin/expense_categories">Expense Categories</a></li>
+	    <li class=""><a href="#">Income Categories</a></li>
+		<li class=""><a href="#">Income</a></li>
+		<li class=""><a href="#">Expenses</a></li>
+		<li class=""><a href="#">Monthly report</a></li>
+	</ul>
+</li>
+
+<li class="active">
 	<a href="#"><i class="fa fa-th-large"></i> <span class="nav-label" data-i18n="nav.dashboard">Employees</span> <span class="fa arrow"></span></a>
 
 	<ul class="nav nav-second-level collapse in">
