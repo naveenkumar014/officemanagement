@@ -56,7 +56,7 @@ class ExpensesController extends Controller
         // if (! Gate::allows('expense_create')) {
         //     return abort(401);
         // }
-        $expense = Expense::create($request->all()); // + ['currency_id' => Auth::user()->currency_id]);
+        $expense = Expense::create($request->all() + ['currency_id' => Auth::user()->currency_id]);
 
 
 
