@@ -6,37 +6,38 @@ use App\IncomeCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreIncomeCategories;
-use App\Http\Requests\Admin\UpdateIncomeCategories;
+use App\Http\Requests\Admin\StoreIncomeCategoriesRequest;
+use App\Http\Requests\Admin\UpdateIncomeCategoriesRequest;
 
 class IncomeCategoriesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of IncomeCategory.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        // if (! Gate::allows('income_category_access')) {
-        //     return abort(401);
-        // }
-        
-        $income_categories = IncomeCategory::all();
+        if (! Gate::allows('income_category_access')) {
+            return abort(401);
+        }
+
+
+                $income_categories = IncomeCategory::all();
 
         return view('admin.income_categories.index', compact('income_categories'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating new IncomeCategory.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        // if (! Gate::allows('income_category_create')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_category_create')) {
+            return abort(401);
+        }
         
         $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
@@ -44,52 +45,35 @@ class IncomeCategoriesController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * 
-     * @param  \App\Http\Requests\StoreIncomeCategories  $request
-     * @param  \Illuminate\Http\Request  $request
+     * Store a newly created IncomeCategory in storage.
+     *
+     * @param  \App\Http\Requests\StoreIncomeCategoriesRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreIncomeCategories $request)
+    public function store(StoreIncomeCategoriesRequest $request)
     {
-        // if (! Gate::allows('income_category_create')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_category_create')) {
+            return abort(401);
+        }
         $income_category = IncomeCategory::create($request->all());
 
-        return redirect()->route('income_categories.index');
+
+
+        return redirect()->route('admin.income_categories.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\IncomeCategories  $incomeCategories
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        // if (! Gate::allows('income_category_view')) {
-        //     return abort(401);
-        // }
-        
-        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('please_select'), '');$incomes = \App\Income::where('income_category_id', $id)->get();
-
-        $income_category = IncomeCategory::findOrFail($id);
-
-        return view('admin.income_categories.show', compact('income_category', 'incomes'));
-    }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing IncomeCategory.
      *
-     * @param  \App\IncomeCategories  $incomeCategories
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        // if (! Gate::allows('income_category_edit')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_category_edit')) {
+            return abort(401);
+        }
         
         $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
@@ -99,38 +83,80 @@ class IncomeCategoriesController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     * 
-     * @param  \App\Http\Requests\UpdateIncomeCategories  $request
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\IncomeCategories  $incomeCategories
+     * Update IncomeCategory in storage.
+     *
+     * @param  \App\Http\Requests\UpdateIncomeCategoriesRequest  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateIncomeCategories $request, $id)
+    public function update(UpdateIncomeCategoriesRequest $request, $id)
     {
-        // if (! Gate::allows('income_category_edit')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_category_edit')) {
+            return abort(401);
+        }
         $income_category = IncomeCategory::findOrFail($id);
         $income_category->update($request->all());
+
+
 
         return redirect()->route('admin.income_categories.index');
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Display IncomeCategory.
      *
-     * @param  \App\IncomeCategories  $incomeCategories
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        if (! Gate::allows('income_category_view')) {
+            return abort(401);
+        }
+        
+        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');$incomes = \App\Income::where('income_category_id', $id)->get();
+
+        $income_category = IncomeCategory::findOrFail($id);
+
+        return view('admin.income_categories.show', compact('income_category', 'incomes'));
+    }
+
+
+    /**
+     * Remove IncomeCategory from storage.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        // if (! Gate::allows('income_category_delete')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_category_delete')) {
+            return abort(401);
+        }
         $income_category = IncomeCategory::findOrFail($id);
         $income_category->delete();
 
         return redirect()->route('admin.income_categories.index');
     }
+
+    /**
+     * Delete all selected IncomeCategory at once.
+     *
+     * @param Request $request
+     */
+    public function massDestroy(Request $request)
+    {
+        if (! Gate::allows('income_category_delete')) {
+            return abort(401);
+        }
+        if ($request->input('ids')) {
+            $entries = IncomeCategory::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($entries as $entry) {
+                $entry->delete();
+            }
+        }
+    }
+
 }

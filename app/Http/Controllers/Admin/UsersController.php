@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Users;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreUsers;
-use App\Http\Requests\Admin\UpdateUsers;
+use App\Http\Requests\Admin\StoreUsersRequest;
+use App\Http\Requests\Admin\UpdateUsersRequest;
 
 class UsersController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of User.
      *
      * @return \Illuminate\Http\Response
      */
@@ -29,7 +29,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating new User.
      *
      * @return \Illuminate\Http\Response
      */
@@ -39,18 +39,18 @@ class UsersController extends Controller
             return abort(401);
         }
         
-        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('please_select'), '');
+        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
         return view('admin.users.create', compact('roles'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @param  \App\Http\Requests\StoreUsers  $request
-     * @param  \Illuminate\Http\Request  $request
+     * Store a newly created User in storage.
+     *
+     * @param  \App\Http\Requests\StoreUsersRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreUsers $request)
+    public function store(StoreUsersRequest $request)
     {
         if (! Gate::allows('user_create')) {
             return abort(401);
@@ -62,34 +62,11 @@ class UsersController extends Controller
         return redirect()->route('admin.users.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Users  $users
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        if (! Gate::allows('user_view')) {
-            return abort(401);
-        }
-        
-        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('please_select'), '');
-        $expense_categories = \App\ExpenseCategory::where('created_by_id', $id)->get();
-        $income_categories = \App\IncomeCategory::where('created_by_id', $id)->get();
-        $currencies = \App\Currency::where('created_by_id', $id)->get();
-        $incomes = \App\Income::where('created_by_id', $id)->get();
-        $expenses = \App\Expense::where('created_by_id', $id)->get();
-
-        $user = User::findOrFail($id);
-
-        return view('admin.users.show', compact('user', 'expense_categories', 'income_categories', 'currencies', 'incomes', 'expenses'));
-    }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing User.
      *
-     * @param  \App\Users  $users
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -98,7 +75,7 @@ class UsersController extends Controller
             return abort(401);
         }
         
-        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('please_select'), '');
+        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
         $user = User::findOrFail($id);
 
@@ -106,13 +83,13 @@ class UsersController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     * @param  \App\Http\Requests\UpdateUsers  $request
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Users  $users
+     * Update User in storage.
+     *
+     * @param  \App\Http\Requests\UpdateUsersRequest  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateUsers $request, $id)
+    public function update(UpdateUsersRequest $request, $id)
     {
         if (! Gate::allows('user_edit')) {
             return abort(401);
@@ -125,10 +102,31 @@ class UsersController extends Controller
         return redirect()->route('admin.users.index');
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Display User.
      *
-     * @param  \App\Users  $users
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        if (! Gate::allows('user_view')) {
+            return abort(401);
+        }
+        
+        $roles = \App\Role::get()->pluck('title', 'id')->prepend(trans('quickadmin.qa_please_select'), '');$expense_categories = \App\ExpenseCategory::where('created_by_id', $id)->get();$income_categories = \App\IncomeCategory::where('created_by_id', $id)->get();$currencies = \App\Currency::where('created_by_id', $id)->get();$incomes = \App\Income::where('created_by_id', $id)->get();$expenses = \App\Expense::where('created_by_id', $id)->get();
+
+        $user = User::findOrFail($id);
+
+        return view('admin.users.show', compact('user', 'expense_categories', 'income_categories', 'currencies', 'incomes', 'expenses'));
+    }
+
+
+    /**
+     * Remove User from storage.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -141,4 +139,24 @@ class UsersController extends Controller
 
         return redirect()->route('admin.users.index');
     }
+
+    /**
+     * Delete all selected User at once.
+     *
+     * @param Request $request
+     */
+    public function massDestroy(Request $request)
+    {
+        if (! Gate::allows('user_delete')) {
+            return abort(401);
+        }
+        if ($request->input('ids')) {
+            $entries = User::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($entries as $entry) {
+                $entry->delete();
+            }
+        }
+    }
+
 }

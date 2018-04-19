@@ -6,33 +6,24 @@ use App\ExpenseCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreExpenseCategories;
-use App\Http\Requests\Admin\UpdateExpenseCategories;
+use App\Http\Requests\Admin\StoreExpenseCategoriesRequest;
+use App\Http\Requests\Admin\UpdateExpenseCategoriesRequest;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
-use DB;
-// use App\Http\Controllers\Admin\ExpenseCategoriesController;
+
 class ExpenseCategoriesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of ExpenseCategory.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        // if($request->session()->has('currentUser')){
-    	// 	$expense_categories = DB::table('expense_categories')->get(); //here i take example table for result purpose
-           // return view('admin.expense_categories.index');
-            //  ['expense_categories' => $expense_categories]);
-        // }
-        // else{
-        //     return view('errors/unauthorized');
-        // }
-//this code copy from the office_expenses controllers...
-        // if (! Gate::allows('expense_category_access')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_access')) {
+            // return abort(401);
+            return 'not exit';
+        }
         if ($filterBy = Input::get('filter')) {
             if ($filterBy == 'all') {
                 Session::put('ExpenseCategory.filter', 'all');
@@ -47,69 +38,51 @@ class ExpenseCategoriesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating new ExpenseCategory.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
-        // if (! Gate::allows('expense_category_create')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_create')) {
+            return abort(401);
+        }
         
-        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('please_select'), '');
+        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
         return view('admin.expense_categories.create', compact('created_bies'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @param  \App\Http\Requests\StoreExpenseCategories  $request
-     * @return \Illuminate\Http\Response
-     * @param  \Illuminate\Http\Request  $request
+     * Store a newly created ExpenseCategory in storage.
+     *
+     * @param  \App\Http\Requests\StoreExpenseCategoriesRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreExpenseCategories $request)
+    public function store(StoreExpenseCategoriesRequest $request)
     {
-        // if (! Gate::allows('expense_category_create')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_create')) {
+            return abort(401);
+        }
         $expense_category = ExpenseCategory::create($request->all());
 
-        return redirect()->route('expense_categories.index');
-        
+
+
+        return redirect()->route('admin.expense_categories.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\ExpensesCategories  $expensesCategories
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        // if (! Gate::allows('expense_category_view')) {
-        //     return abort(401);
-        // }
-        
-        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');$expenses = \App\Expense::where('expense_category_id', $id)->get();
-
-        $expense_category = ExpenseCategory::findOrFail($id);
-
-        return view('admin.expense_categories.show', compact('expense_category', 'expenses'));
-    }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing ExpenseCategory.
      *
-     * @param  \App\ExpensesCategories  $expensesCategories
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        // if (! Gate::allows('expense_category_edit')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_edit')) {
+            return abort(401);
+        }
         
         $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
@@ -119,17 +92,17 @@ class ExpenseCategoriesController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update ExpenseCategory in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ExpensesCategories  $expensesCategories
+     * @param  \App\Http\Requests\UpdateExpenseCategoriesRequest  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateExpenseCategoriesRequest $request, $id)
     {
-        // if (! Gate::allows('expense_category_edit')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_edit')) {
+            return abort(401);
+        }
         $expense_category = ExpenseCategory::findOrFail($id);
         $expense_category->update($request->all());
 
@@ -138,20 +111,61 @@ class ExpenseCategoriesController extends Controller
         return redirect()->route('admin.expense_categories.index');
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Display ExpenseCategory.
      *
-     * @param  \App\ExpensesCategories  $expensesCategories
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        if (! Gate::allows('expense_category_view')) {
+            return abort(401);
+        }
+        
+        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');$expenses = \App\Expense::where('expense_category_id', $id)->get();
+
+        $expense_category = ExpenseCategory::findOrFail($id);
+
+        return view('admin.expense_categories.show', compact('expense_category', 'expenses'));
+    }
+
+
+    /**
+     * Remove ExpenseCategory from storage.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        // if (! Gate::allows('expense_category_delete')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('expense_category_delete')) {
+            return abort(401);
+        }
         $expense_category = ExpenseCategory::findOrFail($id);
         $expense_category->delete();
 
         return redirect()->route('admin.expense_categories.index');
     }
+
+    /**
+     * Delete all selected ExpenseCategory at once.
+     *
+     * @param Request $request
+     */
+    public function massDestroy(Request $request)
+    {
+        if (! Gate::allows('expense_category_delete')) {
+            return abort(401);
+        }
+        if ($request->input('ids')) {
+            $entries = ExpenseCategory::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($entries as $entry) {
+                $entry->delete();
+            }
+        }
+    }
+
 }

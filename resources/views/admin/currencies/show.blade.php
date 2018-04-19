@@ -1,4 +1,7 @@
-<h3 class="page-title">@lang('quickadmin.currency.title')</h3>
+@extends('layouts.app')
+
+@section('content')
+    <h3 class="page-title">@lang('quickadmin.currency.title')</h3>
 
     <div class="panel panel-default">
         <div class="panel-heading">

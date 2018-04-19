@@ -1,9 +1,8 @@
 <?php
-
 namespace App;
 
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Hash;
 
@@ -17,34 +16,13 @@ use Hash;
  * @property string $role
  * @property string $remember_token
 */
-
 class User extends Authenticatable
 {
     use Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    // protected $fillable = [
-    //     'name', 'email', 'password', 
-    // ];
+    protected $fillable = ['name', 'email', 'password', 'remember_token', 'role_id', 'currency_id'];
     
-    protected $fillable = [
-        'name', 'email', 'password', 'remember_token', 'role_id', 'currency_id', 'username', 'position', 'admin',
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    // protected $hidden = [
-    //     'password', 'remember_token',
-    // ];
-
-//this code copy from OfficeExpenses
+    
+    
     /**
      * Hash password
      * @param $input
@@ -79,4 +57,5 @@ class User extends Authenticatable
     {
        $this->notify(new ResetPassword($token));
     }
+    
 }

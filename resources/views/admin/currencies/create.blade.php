@@ -1,4 +1,7 @@
-<h3 class="page-title">@lang('quickadmin.currency.title')</h3>
+@extends('layouts.app')
+
+@section('content')
+    <h3 class="page-title">@lang('quickadmin.currency.title')</h3>
     {!! Form::open(['method' => 'POST', 'route' => ['admin.currencies.store']]) !!}
 
     <div class="panel panel-default">
@@ -62,3 +65,4 @@
     {!! Form::submit(trans('quickadmin.qa_save'), ['class' => 'btn btn-danger']) !!}
     {!! Form::close() !!}
 @stop
+

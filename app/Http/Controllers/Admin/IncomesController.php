@@ -6,8 +6,8 @@ use App\Income;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreIncomes;
-use App\Http\Requests\Admin\UpdateIncomes;
+use App\Http\Requests\Admin\StoreIncomesRequest;
+use App\Http\Requests\Admin\UpdateIncomesRequest;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Auth;
@@ -15,15 +15,15 @@ use Illuminate\Support\Facades\Auth;
 class IncomesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of Income.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        // if (! Gate::allows('income_access')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_access')) {
+            return abort(401);
+        }
         if ($filterBy = Input::get('filter')) {
             if ($filterBy == 'all') {
                 Session::put('Income.filter', 'all');
@@ -38,59 +38,43 @@ class IncomesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating new Income.
      *
      * @return \Illuminate\Http\Response
      */
     public function create()
     {
-        // if (! Gate::allows('income_create')) {
-        //     return abort(401);
-        // }
+        if (! Gate::allows('income_create')) {
+            return abort(401);
+        }
         
-        $income_categories = \App\IncomeCategory::get()->pluck('name', 'id')->prepend(trans('please_select'), '');
-        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('please_select'), '');
+        $income_categories = \App\IncomeCategory::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
+        $created_bies = \App\User::get()->pluck('name', 'id')->prepend(trans('quickadmin.qa_please_select'), '');
 
         return view('admin.incomes.create', compact('income_categories', 'created_bies'));
     }
 
     /**
-     * Store a newly created resource in storage.
-     * 
-     *@param  \App\Http\Requests\StoreIncomes  $request
-     * @param  \Illuminate\Http\Request  $request
+     * Store a newly created Income in storage.
+     *
+     * @param  \App\Http\Requests\StoreIncomesRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreIncomes $request)
+    public function store(StoreIncomesRequest $request)
     {
-        // if (! Gate::allows('income_create')) {
-        //     return abort(401);
-        // }
-        $income = Income::create($request->all());  //+ ['currency_id' => Auth::user()->currency_id]);
+        if (! Gate::allows('income_create')) {
+            return abort(401);
+        }
+        $income = Income::create($request->all() + ['currency_id' => Auth::user()->currency_id]);
 
         return redirect()->route('admin.incomes.index');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Incomes  $incomes
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        if (! Gate::allows('income_view')) {
-            return abort(401);
-        }
-        $income = Income::findOrFail($id);
-
-        return view('admin.incomes.show', compact('income'));
-    }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing Income.
      *
-     * @param  \App\Incomes  $incomes
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -108,10 +92,10 @@ class IncomesController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Income in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Incomes  $incomes
+     * @param  \App\Http\Requests\UpdateIncomesRequest  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(UpdateIncomesRequest $request, $id)
@@ -125,10 +109,28 @@ class IncomesController extends Controller
         return redirect()->route('admin.incomes.index');
     }
 
+
     /**
-     * Remove the specified resource from storage.
+     * Display Income.
      *
-     * @param  \App\Incomes  $incomes
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        if (! Gate::allows('income_view')) {
+            return abort(401);
+        }
+        $income = Income::findOrFail($id);
+
+        return view('admin.incomes.show', compact('income'));
+    }
+
+
+    /**
+     * Remove Income from storage.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -141,4 +143,24 @@ class IncomesController extends Controller
 
         return redirect()->route('admin.incomes.index');
     }
+
+    /**
+     * Delete all selected Income at once.
+     *
+     * @param Request $request
+     */
+    public function massDestroy(Request $request)
+    {
+        if (! Gate::allows('income_delete')) {
+            return abort(401);
+        }
+        if ($request->input('ids')) {
+            $entries = Income::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($entries as $entry) {
+                $entry->delete();
+            }
+        }
+    }
+
 }

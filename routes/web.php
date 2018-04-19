@@ -1,105 +1,89 @@
 <?php
+Route::get('/', function () { return redirect('/admin/home'); });
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+// Authentication Routes...
+$this->get('login', 'Auth\LoginController@showLoginForm')->name('auth.login');
+$this->post('login', 'Auth\LoginController@login')->name('auth.login');
+$this->post('logout', 'Auth\LoginController@logout')->name('auth.logout');
 
+// Change Password Routes...
+$this->get('change_password', 'Auth\ChangePasswordController@showChangePasswordForm')->name('auth.change_password');
+$this->patch('change_password', 'Auth\ChangePasswordController@changePassword')->name('auth.change_password');
 
-//************************ Login Route Start *****************************
-Route::get('/', 'LoginController@index');
-Route::post('/trytologin',array('uses'=>'LoginController@login'));
-//************************** Login Route End *****************************
+// Password Reset Routes...
+$this->get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('auth.password.reset');
+$this->post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('auth.password.reset');
+$this->get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+$this->post('password/reset', 'Auth\ResetPasswordController@reset')->name('auth.password.reset');
 
+// Registration Routes..
+$this->get('register', 'Auth\RegisterController@showRegistrationForm')->name('auth.register');
+$this->post('register', 'Auth\RegisterController@register')->name('auth.register');
 
+Route::group(['middleware' => ['auth'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::get('/home', 'HomeController@index');
+    
 
-//************************ Logout Route Start *****************************
-Route::get('/logout','LogoutController@index');
-//************************ Logout Route End *****************************
+    Route::resource('roles', 'Admin\RolesController');
+    Route::post('roles_mass_destroy', ['uses' => 'Admin\RolesController@massDestroy', 'as' => 'roles.mass_destroy']);
+    Route::resource('users', 'Admin\UsersController');
+    Route::post('users_mass_destroy', ['uses' => 'Admin\UsersController@massDestroy', 'as' => 'users.mass_destroy']);
+    Route::resource('expense_categories', 'Admin\ExpenseCategoriesController');
+    Route::post('expense_categories_mass_destroy', ['uses' => 'Admin\ExpenseCategoriesController@massDestroy', 'as' => 'expense_categories.mass_destroy']);
+    Route::resource('income_categories', 'Admin\IncomeCategoriesController');
+    Route::post('income_categories_mass_destroy', ['uses' => 'Admin\IncomeCategoriesController@massDestroy', 'as' => 'income_categories.mass_destroy']);
+    Route::resource('incomes', 'Admin\IncomesController');
+    Route::post('incomes_mass_destroy', ['uses' => 'Admin\IncomesController@massDestroy', 'as' => 'incomes.mass_destroy']);
+    Route::resource('expenses', 'Admin\ExpensesController');
+    Route::post('expenses_mass_destroy', ['uses' => 'Admin\ExpensesController@massDestroy', 'as' => 'expenses.mass_destroy']);
+    Route::resource('monthly_reports', 'Admin\MonthlyReportsController');
+    Route::resource('currencies', 'Admin\CurrenciesController');
+    Route::post('currencies_mass_destroy', ['uses' => 'Admin\CurrenciesController@massDestroy', 'as' => 'currencies.mass_destroy']);
+    Route::post('currencies_restore/{id}', ['uses' => 'Admin\CurrenciesController@restore', 'as' => 'currencies.restore']);
+    Route::delete('currencies_perma_del/{id}', ['uses' => 'Admin\CurrenciesController@perma_del', 'as' => 'currencies.perma_del']);
 
+    // Route::resource('/admin/attendance' ,'AttendanceController');
+    // Route::get('attendance','AttendanceController@index')->name('attendance');
+    
+    
 
-
-//************************ Admin Route Start *****************************
-Route::get('/admin', 'AdminController@index');
-//************************ Admin Route End *****************************
-
-
-
-//************************ Employee Route Start *****************************
-Route::get('/employee', 'EmployeeController@index');
-//************************ Employee Route End *****************************
-
-
-
-//************************ Employees Route Start *****************************
-Route::get('/admin/employees','EmployeesController@index');
-Route::get('/admin/addemployee','EmployeesController@addEmployee');
-Route::get('/admin/employee/details/{id}','EmployeesController@getEmployee');
-Route::get('/admin/employee/edit/{id}','EmployeesController@editEmployee');
-Route::get('/admin/employee/delete/{id}','EmployeesController@deleteEmployee');
-
-Route::post('/admin/trytoaddemployee','EmployeesController@create');
-Route::post('/admin/trytoupdateemployee',array('uses'=>'EmployeesController@update'));
-Route::post('/admin/trytodeleteemployee',array('uses'=>'EmployeesController@delete'));
-//************************ Employees Route End *****************************
-
-
-
-//************************ Tasks Route Start *****************************
-Route::get('/admin/tasks','TasksController@index');
-Route::get('/admin/mytasks','TasksController@adminTasks');
-Route::get('/employee/mytasks','TasksController@employeeTasks');
-Route::get('/admin/addtask','TasksController@addTask');
-Route::get('/admin/task/details/{id}','TasksController@getTask');
-Route::get('/admin/task/edit/{id}','TasksController@editTask');
-Route::get('/employee/task/details/{id}','TasksController@getTaskOfEmployee');
-Route::get('/employee/task/edit/{id}','TasksController@editTaskOfEmployee');
-Route::get('/admin/task/delete/{id}','TasksController@deleteTask');
-
-Route::post('/admin/trytoaddtask','TasksController@create');
-Route::post('/admin/trytoupdatetask',array('uses'=>'TasksController@update'));
-Route::post('/admin/trytoupdatemytask',array('uses'=>'TasksController@update'));
-Route::post('/employee/trytoupdatemytask',array('uses'=>'TasksController@employeeTaskUpdate'));
-Route::post('/admin/trytodeletetask',array('uses'=>'TasksController@delete'));
-//************************ Tasks Route End *****************************
-
-
-
-//************************ Attendance Route Start *****************************
-Route::get('/admin/attendance','AttendanceController@index');
-Route::get('/admin/attendances','AttendanceController@all');
-Route::get('/admin/attendance/search', function () {
-    return view('admin/attendance/search');
+ 
 });
-Route::get('/admin/addattendance','AttendanceController@addAttendance');
-Route::get('/admin/attendance/details/{id}','AttendanceController@getAttendance');
-Route::get('/admin/attendance/edit/{id}','AttendanceController@editAttendance');
-Route::get('/admin/attendance/delete/{id}','AttendanceController@deleteAttendance');
+//for ATTENDANCE routes
+Route::group(['middleware' => ['auth'],'prefix' => 'admin'], function (){
+    Route::get('attendance','AttendanceController@index')->name('attendance');
+    Route::get('addAttendance','AttendanceController@addAttendance')->name('addAttendance');
+    
+    Route::get('attendances','AttendanceController@all')->name('attendances');
+    Route::get('attendance/search', function () {
+        return view('admin/attendance/search');
+    });
+    Route::get('attendance/details/{id}','AttendanceController@getAttendance');
+    Route::get('attendance/edit/{id}','AttendanceController@editAttendance');
+    Route::get('attendance/delete/{id}','AttendanceController@deleteAttendance');
 
-Route::post('/admin/trytoaddattendance','AttendanceController@create');
-Route::post('/admin/trytoupdateattendance',array('uses'=>'AttendanceController@update'));
-Route::post('/admin/trytodeleteattendance',array('uses'=>'AttendanceController@delete'));
-Route::post('/admin/attendance/byDate','AttendanceController@searchByDate');
-Route::post('/admin/attendance/byMonth','AttendanceController@searchByMonth');
-Route::post('/admin/attendance/byYear','AttendanceController@searchByYear');
-Route::post('/admin/attendance/byUsername','AttendanceController@searchByUsername');
-//************************ Attendance Route End *****************************
+    Route::post('trytoaddattendance','AttendanceController@create')->name('trytoaddattendance');
+    Route::post('trytoupdateattendance','AttendanceController@update')->name('trytoupdateattendance');
+    Route::post('trytodeleteattendance','AttendanceController@delete')->name('trytodeleteattendance');
+    Route::post('attendance/byDate','AttendanceController@searchByDate');
+    Route::post('attendance/byMonth','AttendanceController@searchByMonth');
+    Route::post('attendance/byYear','AttendanceController@searchByYear');
+    Route::post('attendance/byUsername','AttendanceController@searchByUsername');
+
+// for EMPLOYEES routes
+    Route::get('employees','EmployeesController@index')->name('employee');
+    Route::get('addemployee','EmployeesController@addEmployee')->name('addemployee');
+    Route::get('employee/details/{id}','EmployeesController@getEmployee');
+    Route::get('employee/edit/{id}','EmployeesController@editEmployee');
+    Route::get('employee/delete/{id}','EmployeesController@deleteEmployee');
+    Route::post('trytoaddemployee','EmployeesController@create');
+    Route::post('trytoupdateemployee',array('uses'=>'EmployeesController@update'));
+    Route::post('trytodeleteemployee',array('uses'=>'EmployeesController@delete'));
+
+//for TASKS routes
+    Route::get('tasks','TasksController@index')->name('task');
+    Route::get('addtask','TasksController@addTask')->name('addtask');
+    Route::get('mytasks','TasksController@adminTasks')->name('mytask');
+});
 
 
-
-//************************Expense_categories Route Start********************
-// Route::group(['namespace' => '\App\Controllers'], function(){});
-// Route::get('/admin/expense_categories','Admin\ExpenseCategoriesController@index');
-// Route::get('/admin/expense_categories','Admin\ExpensesCategoriesController@create');
-// Route::post('/admin/expense_categories','ExpensesCategoriesController@store');
-Route::resource('/admin/expense_categories','Admin\ExpenseCategoriesController');
-Route::resource('/admin/income_categories','Admin\IncomeCategoriesController');
-Route::resource('/admin/incomes','Admin\IncomesController');
-Route::resource('/admin/expenses','Admin\ExpensesController');
-Route::resource('/admin/monthly_reports','Admin\MonthlyReportsController');

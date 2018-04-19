@@ -1,4 +1,8 @@
-<h3 class="page-title">@lang('quickadmin.currency.title')</h3>
+@inject('request', 'Illuminate\Http\Request')
+@extends('layouts.app')
+
+@section('content')
+    <h3 class="page-title">@lang('quickadmin.currency.title')</h3>
     @can('currency_create')
     <p>
         <a href="{{ route('admin.currencies.create') }}" class="btn btn-success">@lang('quickadmin.qa_add_new')</a>

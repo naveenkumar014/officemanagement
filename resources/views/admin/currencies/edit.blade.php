@@ -1,4 +1,7 @@
-<h3 class="page-title">@lang('quickadmin.currency.title')</h3>
+@extends('layouts.app')
+
+@section('content')
+    <h3 class="page-title">@lang('quickadmin.currency.title')</h3>
     
     {!! Form::model($currency, ['method' => 'PUT', 'route' => ['admin.currencies.update', $currency->id]]) !!}
 
@@ -63,3 +66,4 @@
     {!! Form::submit(trans('quickadmin.qa_update'), ['class' => 'btn btn-danger']) !!}
     {!! Form::close() !!}
 @stop
+

@@ -6,13 +6,13 @@ use App\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreRoles;
-use App\Http\Requests\Admin\UpdateRoles;
+use App\Http\Requests\Admin\StoreRolesRequest;
+use App\Http\Requests\Admin\UpdateRolesRequest;
 
 class RolesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of Role.
      *
      * @return \Illuminate\Http\Response
      */
@@ -29,7 +29,7 @@ class RolesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating new Role.
      *
      * @return \Illuminate\Http\Response
      */
@@ -42,13 +42,12 @@ class RolesController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * 
-     *@param  \App\Http\Requests\StoreRoles  $request
-     * @param  \Illuminate\Http\Request  $request
+     * Store a newly created Role in storage.
+     *
+     * @param  \App\Http\Requests\StoreRolesRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreRoles $request)
+    public function store(StoreRolesRequest $request)
     {
         if (! Gate::allows('role_create')) {
             return abort(401);
@@ -60,10 +59,48 @@ class RolesController extends Controller
         return redirect()->route('admin.roles.index');
     }
 
+
     /**
-     * Display the specified resource.
+     * Show the form for editing Role.
      *
-     * @param  \App\Roles  $roles
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        if (! Gate::allows('role_edit')) {
+            return abort(401);
+        }
+        $role = Role::findOrFail($id);
+
+        return view('admin.roles.edit', compact('role'));
+    }
+
+    /**
+     * Update Role in storage.
+     *
+     * @param  \App\Http\Requests\UpdateRolesRequest  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(UpdateRolesRequest $request, $id)
+    {
+        if (! Gate::allows('role_edit')) {
+            return abort(401);
+        }
+        $role = Role::findOrFail($id);
+        $role->update($request->all());
+
+
+
+        return redirect()->route('admin.roles.index');
+    }
+
+
+    /**
+     * Display Role.
+     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -78,45 +115,11 @@ class RolesController extends Controller
         return view('admin.roles.show', compact('role', 'users'));
     }
 
+
     /**
-     * Show the form for editing the specified resource.
+     * Remove Role from storage.
      *
-     * @param  \App\Roles  $roles
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        if (! Gate::allows('role_edit')) {
-            return abort(401);
-        }
-        $role = Role::findOrFail($id);
-
-        return view('admin.roles.edit', compact('role'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * 
-     *@param  \App\Http\Requests\UpdateRolesRequest  $request
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Roles  $roles
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateRoles $request, $id)
-    {
-        if (! Gate::allows('role_edit')) {
-            return abort(401);
-        }
-        $role = Role::findOrFail($id);
-        $role->update($request->all());
-
-        return redirect()->route('admin.roles.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Roles  $roles
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -129,4 +132,24 @@ class RolesController extends Controller
 
         return redirect()->route('admin.roles.index');
     }
+
+    /**
+     * Delete all selected Role at once.
+     *
+     * @param Request $request
+     */
+    public function massDestroy(Request $request)
+    {
+        if (! Gate::allows('role_delete')) {
+            return abort(401);
+        }
+        if ($request->input('ids')) {
+            $entries = Role::whereIn('id', $request->input('ids'))->get();
+
+            foreach ($entries as $entry) {
+                $entry->delete();
+            }
+        }
+    }
+
 }
